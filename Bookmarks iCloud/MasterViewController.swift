@@ -19,7 +19,7 @@ class MasterViewController: UITableViewController,AddBookMarkDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
         self.navigationItem.leftBarButtonItem = self.editButtonItem()
 
         let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewObject:")
@@ -85,10 +85,22 @@ class MasterViewController: UITableViewController,AddBookMarkDelegate {
 
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
-            objects.removeAtIndex(indexPath.row)
+
+            //Fetch document
+            let bookmarkDocument = self.bookmarks.objectAtIndex(indexPath.row) as! BookmarkDocument
+
+            // Delete Document
+            do {
+                try NSFileManager.defaultManager().removeItemAtURL(bookmarkDocument.fileURL)
+            } catch let error as NSError{
+                print("An error occurred while trying to delete document. Error %@ with user info %@.", error, error.userInfo);
+            }
+
+            // Update Bookmarks
+            self.bookmarks.removeObjectAtIndex(indexPath.row)
+
+            // Update Table View
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
         }
     }
 
